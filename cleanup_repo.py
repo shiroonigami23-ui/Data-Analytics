@@ -1,40 +1,44 @@
-#!/usr/bin/env python3
-import os, shutil, pathlib
+import os
 
-# Folders / files we KEEP
-keep_files = {
-    "index.html","about.html","topics.html","resources.html","quiz.html","contact.html","admin.html",
-    "style.css","script.js","backend.js",
-    "update_site.py","config.yaml","requirements.txt","package.json","README.md",
-    "resources.json","quiz.json","feedback.gs"
+# Always keep these extensions and folders
+SAFE_EXTENSIONS = {".html", ".css", ".js", ".json", ".yaml", ".yml", ".md", ".py"}
+SAFE_FOLDERS = {"data", ".github"}
+
+# Explicit junk files (we know they are not needed)
+REMOVE_FILES = {
+    "update.py",
+    "update-site.yml",
+    "admin.html",
+    "package.json"
 }
-keep_dirs = {".github","data"}
 
-# Folders / files to remove if found
-delete_candidates = [
-    "update.py","update-site.yml","generate_quiz.py","generate_resources.py","generate_site.py",
-    "analytics.html","quiz.yaml","resources.yaml","main.js"
-]
+def is_safe(file):
+    # Always keep known safe files
+    if file in REMOVE_FILES:
+        return False
+    if os.path.isdir(file) and file in SAFE_FOLDERS:
+        return True
+    ext = os.path.splitext(file)[1]
+    return ext in SAFE_EXTENSIONS
 
-root = pathlib.Path(".")
+def cleanup():
+    for file in os.listdir("."):
+        if file.startswith(".git"):  # never touch git internals
+            continue
+        if not is_safe(file):
+            try:
+                if os.path.isfile(file):
+                    os.remove(file)
+                    print(f"Removed: {file}")
+                elif os.path.isdir(file):
+                    # Only remove unknown directories
+                    os.rmdir(file)
+                    print(f"Removed folder: {file}")
+            except Exception as e:
+                print(f"Could not remove {file}: {e}")
 
-# Delete unwanted files
-for fname in delete_candidates:
-    fpath = root / fname
-    if fpath.exists():
-        if fpath.is_dir():
-            shutil.rmtree(fpath)
-            print("Removed folder:", fpath)
-        else:
-            fpath.unlink()
-            print("Removed file:", fpath)
+    print("Safe cleanup complete ✅")
 
-# Clean up .github/workflows (keep only update.yml + deploy.yml)
-wf_dir = root / ".github" / "workflows"
-if wf_dir.exists():
-    for f in wf_dir.iterdir():
-        if f.name not in ["update.yml","deploy.yml"]:
-            f.unlink()
-            print("Removed old workflow:", f)
-
-print("✅ Repo cleanup complete, only essential files remain.")
+if __name__ == "__main__":
+    cleanup()
+    
