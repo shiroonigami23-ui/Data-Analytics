@@ -1,0 +1,21 @@
+{
+  "sample1.png": {
+    "description": "Intro to stats: distribution example using university grades.",
+    "tags": [
+      "lecture",
+      "statistics"
+    ],
+    "quiz": [
+      {
+        "q": "What measure represents the average?",
+        "options": [
+          "Mean",
+          "Median",
+          "Mode",
+          "Range"
+        ],
+        "a": "Mean"
+      }
+    ]
+  }
+}
