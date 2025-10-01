@@ -2,84 +2,90 @@ import os
 import json
 import re
 from pathlib import Path
+from datetime import datetime
 from bs4 import BeautifulSoup
 import PyPDF2
 import docx
-from ebooklib import epub
 
 RESOURCE_DIR = "data/resources"
-RESOURCES_FILE = "resources.json"
-QUIZ_FILE = "quiz.json"
+RESOURCES_JSON = "resources.json"
+QUIZ_JSON = "quiz.json"
 
+# =====================
+# Text Extractors
+# =====================
 def extract_text_from_pdf(file_path):
     try:
         with open(file_path, "rb") as f:
             reader = PyPDF2.PdfReader(f)
             text = ""
-            for page in reader.pages[:2]:
+            for page in reader.pages[:2]:  # first 2 pages only
                 text += page.extract_text() or ""
-            return text.strip().replace("\n", " ")[:400]
+            return text.strip().replace("\n", " ")[:500]
     except:
         return None
 
 def extract_text_from_docx(file_path):
     try:
         doc = docx.Document(file_path)
-        return " ".join([p.text for p in doc.paragraphs])[:400]
+        return " ".join([p.text for p in doc.paragraphs])[:500]
     except:
         return None
 
-def extract_text_from_epub(file_path):
-    try:
-        book = epub.read_epub(file_path)
-        text = []
-        for item in book.get_items():
-            if item.get_type() == 9:
-                content = item.get_content().decode("utf-8")
-                text.append(re.sub("<[^<]+?>", "", content))
-        return " ".join(text)[:400]
-    except:
-        return None
-
-def generate_resources():
+# =====================
+# Metadata Builder
+# =====================
+def build_resources():
     resources = []
-    for file in os.listdir(RESOURCE_DIR):
-        path = os.path.join(RESOURCE_DIR, file)
-        if os.path.isfile(path):
-            name = Path(file).stem.replace("_", " ")
-            ext = Path(file).suffix.lower()
-            description = None
+    for fname in os.listdir(RESOURCE_DIR):
+        fpath = os.path.join(RESOURCE_DIR, fname)
+        if os.path.isfile(fpath):
+            ext = Path(fname).suffix.lower()
+            name = Path(fname).stem.replace("_", " ").title()
 
+            # Detect type
+            if ext in [".pdf", ".docx", ".pptx"]:
+                ftype = "document"
+            elif ext in [".png", ".jpg", ".jpeg", ".gif"]:
+                ftype = "image"
+            elif ext in [".txt"]:
+                ftype = "text"
+            else:
+                ftype = "other"
+
+            # Extract summary
+            summary = None
             if ext == ".pdf":
-                description = extract_text_from_pdf(path)
+                summary = extract_text_from_pdf(fpath)
             elif ext == ".docx":
-                description = extract_text_from_docx(path)
-            elif ext == ".epub":
-                description = extract_text_from_epub(path)
-            elif ext in [".png", ".jpg", ".jpeg"]:
-                description = f"Image resource: {name}"
-            elif ext in [".pptx"]:
-                description = f"Presentation slides: {name}"
+                summary = extract_text_from_docx(fpath)
             elif ext == ".txt":
-                with open(path, "r", encoding="utf-8", errors="ignore") as f:
-                    description = f.read()[:400]
+                with open(fpath, "r", encoding="utf-8", errors="ignore") as f:
+                    summary = f.read()[:500]
 
             resources.append({
-                "title": name.title(),
-                "file": f"{RESOURCE_DIR}/{file}",
-                "type": ext.replace(".", "").upper(),
-                "summary": description or f"Resource on {name} uploaded for Data Analytics learning."
+                "title": name,
+                "file": f"{RESOURCE_DIR}/{fname}",
+                "type": ftype,
+                "size_kb": round(os.path.getsize(fpath) / 1024, 2),
+                "last_modified": datetime.fromtimestamp(os.path.getmtime(fpath)).strftime("%Y-%m-%d %H:%M"),
+                "summary": summary or f"{name} ({ftype}) resource for Data Analytics learning."
             })
 
-    with open(RESOURCES_FILE, "w", encoding="utf-8") as f:
+    with open(RESOURCES_JSON, "w", encoding="utf-8") as f:
         json.dump(resources, f, indent=2, ensure_ascii=False)
+
+    print(f"✅ {RESOURCES_JSON} updated with {len(resources)} entries")
     return resources
 
+# =====================
+# Quiz Generator
+# =====================
 def generate_quiz(resources):
     quiz = []
-    for res in resources[:5]:  # max 5 questions
-        question = {
-            "q": f"What is the main topic of {res['title']}?",
+    for res in resources[:5]:  # limit to 5 auto-generated
+        q = {
+            "q": f"What is the main focus of {res['title']}?",
             "options": [
                 res['title'],
                 "Statistics",
@@ -88,62 +94,78 @@ def generate_quiz(resources):
             ],
             "a": res['title']
         }
-        quiz.append(question)
+        quiz.append(q)
 
-    with open(QUIZ_FILE, "w", encoding="utf-8") as f:
+    with open(QUIZ_JSON, "w", encoding="utf-8") as f:
         json.dump(quiz, f, indent=2, ensure_ascii=False)
 
-def update_html(resources):
-    # Update Topics
-    if os.path.exists("topics.html"):
-        with open("topics.html", "r+", encoding="utf-8") as f:
-            soup = BeautifulSoup(f, "html.parser")
-            container = soup.find("div", {"id": "topicsList"})
-            if container:
-                container.clear()
-                for res in resources:
-                    div = soup.new_tag("div", **{"class": "card"})
-                    h3 = soup.new_tag("h3"); h3.string = res["title"]
-                    p = soup.new_tag("p"); p.string = res["summary"]
-                    btn = soup.new_tag("button"); btn.string = "✔ Mark Complete"
-                    div.extend([h3, p, btn])
-                    container.append(div)
-            f.seek(0); f.write(str(soup)); f.truncate()
+    print(f"✅ {QUIZ_JSON} updated with {len(quiz)} questions")
 
-    # Update Resources
-    if os.path.exists("resources.html"):
-        with open("resources.html", "r+", encoding="utf-8") as f:
-            soup = BeautifulSoup(f, "html.parser")
-            container = soup.find("div", {"id": "resources-list"})
-            if container:
-                container.clear()
-                for res in resources:
-                    div = soup.new_tag("div", **{"class": "card"})
-                    h3 = soup.new_tag("h3"); h3.string = f"{res['title']} ({res['type']})"
-                    p = soup.new_tag("p"); p.string = res["summary"]
-                    a = soup.new_tag("a", href=res["file"], target="_blank"); a.string = "📖 Open Resource"
-                    btn = soup.new_tag("button"); btn.string = "✔ Mark as Read"
-                    div.extend([h3, p, a, btn])
-                    container.append(div)
-            f.seek(0); f.write(str(soup)); f.truncate()
+# =====================
+# HTML Updaters
+# =====================
+def update_resources_html(resources):
+    if not os.path.exists("resources.html"):
+        return
+    with open("resources.html", "r+", encoding="utf-8") as f:
+        soup = BeautifulSoup(f, "html.parser")
+        container = soup.find("div", {"id": "resources-list"})
+        if container:
+            container.clear()
+            for res in resources:
+                div = soup.new_tag("div", **{"class": "card"})
+                h3 = soup.new_tag("h3"); h3.string = f"{res['title']} ({res['type']})"
+                p1 = soup.new_tag("p"); p1.string = f"📁 {res['file']} — {res['size_kb']} KB"
+                p2 = soup.new_tag("p"); p2.string = f"Last updated: {res['last_modified']}"
+                a = soup.new_tag("a", href=res["file"], target="_blank"); a.string = "📥 Open Resource"
+                btn = soup.new_tag("button"); btn.string = "✔ Mark as Read"
+                div.extend([h3, p1, p2, a, btn])
+                container.append(div)
+        f.seek(0); f.write(str(soup)); f.truncate()
+    print("✅ resources.html updated")
 
-    # Update Index (top 3)
-    if os.path.exists("index.html"):
-        with open("index.html", "r+", encoding="utf-8") as f:
-            soup = BeautifulSoup(f, "html.parser")
-            featured = soup.find("div", {"id": "featured-container"})
-            if featured:
-                featured.clear()
-                for res in resources[:3]:
-                    div = soup.new_tag("div", **{"class": "card"})
-                    h3 = soup.new_tag("h3"); h3.string = res["title"]
-                    p = soup.new_tag("p"); p.string = res["summary"]
-                    featured.append(div)
-            f.seek(0); f.write(str(soup)); f.truncate()
+def update_topics_html(resources):
+    if not os.path.exists("topics.html"):
+        return
+    with open("topics.html", "r+", encoding="utf-8") as f:
+        soup = BeautifulSoup(f, "html.parser")
+        container = soup.find("div", {"id": "topicsList"})
+        if container:
+            container.clear()
+            for res in resources:
+                div = soup.new_tag("div", **{"class": "card"})
+                h3 = soup.new_tag("h3"); h3.string = res["title"]
+                p = soup.new_tag("p"); p.string = res["summary"]
+                btn = soup.new_tag("button"); btn.string = "✔ Mark Topic Complete"
+                div.extend([h3, p, btn])
+                container.append(div)
+        f.seek(0); f.write(str(soup)); f.truncate()
+    print("✅ topics.html updated")
 
+def update_index_html(resources):
+    if not os.path.exists("index.html"):
+        return
+    with open("index.html", "r+", encoding="utf-8") as f:
+        soup = BeautifulSoup(f, "html.parser")
+        featured = soup.find("div", {"id": "featured-container"})
+        if featured:
+            featured.clear()
+            for res in resources[:3]:
+                div = soup.new_tag("div", **{"class": "card"})
+                h3 = soup.new_tag("h3"); h3.string = res["title"]
+                p = soup.new_tag("p"); p.string = res["summary"]
+                featured.append(div)
+        f.seek(0); f.write(str(soup)); f.truncate()
+    print("✅ index.html updated")
+
+# =====================
+# Main
+# =====================
 if __name__ == "__main__":
-    resources = generate_resources()
+    resources = build_resources()
     generate_quiz(resources)
-    update_html(resources)
-    print("✅ Full site updated: resources.json, quiz.json, index, topics, resources!")
+    update_resources_html(resources)
+    update_topics_html(resources)
+    update_index_html(resources)
+    print("🎉 Full site auto-update complete!")
     
