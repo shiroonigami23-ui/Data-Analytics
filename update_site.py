@@ -1,114 +1,115 @@
-#!/usr/bin/env python3
-# update_site.py - smart resource ingester: sorts uploads, extracts text (if libs installed), writes resources.json and quiz.json
-import os, json, re, shutil
+import os, json, shutil
+from PyPDF2 import PdfReader
+from docx import Document
+from pptx import Presentation
 from pathlib import Path
-DATA_DIR = Path("data/resources")
-OUT_RES = Path("resources.json")
-OUT_QUIZ = Path("quiz.json")
-def safe_load_text(path):
-    # naive: try to read small text from binary if libraries not present
+from bs4 import BeautifulSoup
+
+RESOURCE_DIR = "data/resources"
+OUTPUT_JSON = "resources.json"
+QUIZ_JSON = "quiz.json"
+INDEX_HTML = "index.html"
+RESOURCES_HTML = "resources.html"
+
+# Ensure folders exist
+Path(RESOURCE_DIR).mkdir(parents=True, exist_ok=True)
+
+resources = []
+
+# ---- Extract text helpers ----
+def extract_pdf(path):
     try:
-        from PyPDF2 import PdfReader
-        if path.suffix.lower()=='.pdf':
-            r=PdfReader(str(path))
-            txt='\\n'.join([p.extract_text() or '' for p in r.pages])
-            return txt
-    except Exception:
-        pass
+        reader = PdfReader(path)
+        return reader.pages[0].extract_text()[:500] if reader.pages else ""
+    except: return ""
+
+def extract_doc(path):
     try:
-        import docx
-        if path.suffix.lower()=='.docx':
-            d = docx.Document(str(path))
-            return '\\n'.join([p.text for p in d.paragraphs if p.text])
-    except Exception:
-        pass
+        doc = Document(path)
+        return "\n".join([p.text for p in doc.paragraphs[:5]])
+    except: return ""
+
+def extract_ppt(path):
     try:
-        from pptx import Presentation
-        if path.suffix.lower()=='.pptx':
-            prs = Presentation(str(path))
-            txts=[] 
-            for s in prs.slides:
-                for shape in s.shapes:
-                    try:
-                        if hasattr(shape, 'text'):
-                            txts.append(shape.text)
-                    except: pass
-            return '\\n'.join(txts)
-    except Exception:
-        pass
-    return ''
-def extract_summary(text, n=3):
-    if not text: return ''
-    parts = [p.strip() for p in re.split(r'[\\n\\r]+', text) if p.strip()]
-    return ' '.join(parts[:n])
-def ensure_dirs():
-    for d in ['pdfs','images','docs','pptx','misc']:
-        (DATA_DIR / d).mkdir(parents=True, exist_ok=True)
-def move_and_process():
-    ensure_dirs()
-    items=[]
-    for f in os.listdir(DATA_DIR):
-        if f.startswith('.'): continue
-        p = DATA_DIR / f
-        if p.is_dir(): continue
-        ext = p.suffix.lower()
-        if ext=='.pdf':
-            dest = DATA_DIR / 'pdfs' / f; shutil.move(str(p), str(dest))
-            text = safe_load_text(dest); summary = extract_summary(text) or 'Auto summary not available.'
-            items.append({'title': dest.stem.replace('_',' ').title(), 'summary': summary, 'file': str(dest).replace('\\\\','/'), 'type':'pdf'})
-        elif ext in ['.png','.jpg','.jpeg','.gif']:
-            dest = DATA_DIR / 'images' / f; shutil.move(str(p), str(dest))
-            items.append({'title': dest.stem.replace('_',' ').title(), 'summary': 'Image resource', 'file': str(dest).replace('\\\\','/'), 'type':'image','preview':str(dest).replace('\\\\','/')})
-        elif ext=='.docx':
-            dest = DATA_DIR / 'docs' / f; shutil.move(str(p), str(dest))
-            text = safe_load_text(dest); summary = extract_summary(text) or 'Auto summary not available.'
-            items.append({'title': dest.stem.replace('_',' ').title(), 'summary': summary, 'file': str(dest).replace('\\\\','/'), 'type':'doc'})
-        elif ext=='.pptx':
-            dest = DATA_DIR / 'pptx' / f; shutil.move(str(p), str(dest))
-            text = safe_load_text(dest); summary = extract_summary(text) or 'Auto summary not available.'
-            items.append({'title': dest.stem.replace('_',' ').title(), 'summary': summary, 'file': str(dest).replace('\\\\','/'), 'type':'ppt'})
-        else:
-            dest = DATA_DIR / 'misc' / f; shutil.move(str(p), str(dest))
-            items.append({'title': dest.stem.replace('_',' ').title(), 'summary':'Misc resource', 'file': str(dest).replace('\\\\','/'), 'type':'misc'})
-    return items
-def main():
-    items = move_and_process()
-    # existing resources
-    res = []
-    if OUT_RES.exists():
-        try:
-            res = json.loads(OUT_RES.read_text(encoding='utf-8'))
-        except: res = []
-    res = items + res
-    OUT_RES.write_text(json.dumps(res, indent=2, ensure_ascii=False), encoding='utf-8')
-    # generate quizzes naive
-    qs = []
-    for it in res:
-        if it['type'] in ['pdf','doc','ppt','doc']:
-            text = ''
-            try:
-                p = Path(it['file'])
-                if p.suffix.lower()=='.pdf':
-                    text = safe_load_text(p)
-                elif p.suffix.lower()=='.docx':
-                    text = safe_load_text(p)
-                elif p.suffix.lower()=='.pptx':
-                    text = safe_load_text(p)
-            except: text=''
-            # simple extraction: first noun-like words
-            import re, random
-            words = re.findall(r'\\b[A-Z][a-zA-Z]{3,}\\b', text)
-            words = list(dict.fromkeys(words))[:10]
-            sents = [s.strip() for s in re.split(r'(?<=[\\.!?])\\s+', text) if len(s.strip())>30]
-            for i, s in enumerate(sents[:4]):
-                if not words: break
-                ans = words[i % len(words)]
-                opts = [ans] + [w for w in words if w!=ans][:3]
-                random.shuffle(opts)
-                qs.append({'topic': it['title'], 'q': s[:120]+'...', 'options': opts, 'a': ans, 'explanation': 'Auto-generated'}) 
-    if not qs:
-        qs = json.loads(Path('quiz.json').read_text(encoding='utf-8')) if Path('quiz.json').exists() else []
-    Path('quiz.json').write_text(json.dumps(qs, indent=2, ensure_ascii=False), encoding='utf-8')
-    print('Generated resources.json and quiz.json')
-if __name__=='__main__':
-    main()
+        prs = Presentation(path)
+        texts = []
+        for slide in prs.slides[:3]:
+            for shape in slide.shapes:
+                if hasattr(shape, "text"):
+                    texts.append(shape.text)
+        return "\n".join(texts)
+    except: return ""
+
+# ---- Build resource list ----
+for file in os.listdir(RESOURCE_DIR):
+    path = os.path.join(RESOURCE_DIR, file)
+    entry = None
+    if file.lower().endswith(".pdf"):
+        text = extract_pdf(path)
+        entry = {"title": file.replace(".pdf",""), "file": path, "summary": text[:200], "type": "pdf"}
+    elif file.lower().endswith((".png",".jpg",".jpeg")):
+        entry = {"title": file, "file": path, "summary": "Image resource", "type": "image"}
+    elif file.lower().endswith(".docx"):
+        text = extract_doc(path)
+        entry = {"title": file.replace(".docx",""), "file": path, "summary": text[:200], "type": "doc"}
+    elif file.lower().endswith(".pptx"):
+        text = extract_ppt(path)
+        entry = {"title": file.replace(".pptx",""), "file": path, "summary": text[:200], "type": "ppt"}
+    else:
+        continue
+
+    if entry:
+        # prevent duplicates
+        if not any(r["file"] == entry["file"] for r in resources):
+            resources.append(entry)
+
+# ---- Save resources.json ----
+with open(OUTPUT_JSON, "w") as f:
+    json.dump(resources, f, indent=2)
+
+print(f"✅ Updated {OUTPUT_JSON} with {len(resources)} entries")
+
+# ---- Update resources.html ----
+if os.path.exists(RESOURCES_HTML):
+    with open(RESOURCES_HTML, "r", encoding="utf-8") as f:
+        soup = BeautifulSoup(f, "html.parser")
+
+    container = soup.find("div", {"id": "resources-list"})
+    if not container:
+        container = soup.new_tag("div", id="resources-list")
+        soup.body.append(container)
+
+    container.clear()
+    for res in resources:
+        card = soup.new_tag("div", **{"class": "card"})
+        card.string = f"{res['title']} ({res['type']}) - {res['summary'][:100]}..."
+        container.append(card)
+
+    with open(RESOURCES_HTML, "w", encoding="utf-8") as f:
+        f.write(str(soup))
+    print("✅ resources.html updated")
+
+# ---- Update index.html ----
+if os.path.exists(INDEX_HTML):
+    with open(INDEX_HTML, "r", encoding="utf-8") as f:
+        soup = BeautifulSoup(f, "html.parser")
+
+    latest = soup.find("div", {"id": "latest-resources"})
+    if not latest:
+        latest = soup.new_tag("div", id="latest-resources")
+        soup.body.append(latest)
+
+    latest.clear()
+    h2 = soup.new_tag("h2")
+    h2.string = "📚 Latest Resources"
+    latest.append(h2)
+
+    for res in resources[:5]:  # show only latest 5
+        p = soup.new_tag("p")
+        p.string = f"{res['title']} - {res['summary'][:80]}..."
+        latest.append(p)
+
+    with open(INDEX_HTML, "w", encoding="utf-8") as f:
+        f.write(str(soup))
+    print("✅ index.html updated")
+    
