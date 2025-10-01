@@ -17,3 +17,30 @@ A gamified, interactive learning portal for Data Analytics, designed by **Shiro 
 - **Feedback**: Google Apps Script → Sheets + email
 
 ## 📂 Structure
+index.html
+about.html
+topics.html
+resources.html
+quiz.html
+contact.html
+analytics.html
+style.css
+script.js
+badges.js
+resources.json
+quiz.json
+update_site.py
+generate_resources.py
+generate_quiz.py
+.github/workflows/update.yml
+
+## 🚀 How It Works
+1. Upload files (PDF/Doc/Image) into `data/resources/`.
+2. GitHub Action runs:
+   - Extracts content → updates `resources.json`.
+   - Generates quizzes → updates `quiz.json`.
+   - Refreshes `index.html` and `resources.html`.
+3. Site auto-deploys via GitHub Pages.
+
+## 👑 Credits
+Project created and guided by **Shiro Oni-sama**.
