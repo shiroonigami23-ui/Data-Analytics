@@ -1,10 +1,7 @@
-body {font-family: 'Poppins', sans-serif;margin: 0;padding: 0;background: var(--bg);color: var(--text);}
-:root {--bg: #fff;--text: #111;--accent: #007bff;}
-@media (prefers-color-scheme: dark) {:root {--bg: #111;--text: #eee;--accent: #00e0ff;}}
-header {background: var(--accent);padding: 1rem;color: #fff;}
-nav ul {list-style: none;display: flex;gap: 1rem;}
-nav a {color: white;text-decoration: none;}
-.hero {text-align: center;padding: 2rem;}
-.btn {background: var(--accent);color: #fff;padding: 0.5rem 1rem;border-radius: 8px;text-decoration: none;}
-table {width: 100%;border-collapse: collapse;margin: 1rem 0;}
-th, td {border: 1px solid var(--text);padding: 0.5rem;text-align: left;}
+body {font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f9f9f9; color: #333;}
+header {background: #4CAF50; color: white; padding: 1em; text-align: center;}
+nav a {margin: 0 10px; color: white; text-decoration: none;}
+main {padding: 20px;}
+section {margin-bottom: 20px;}
+form {display: flex; flex-direction: column; max-width: 400px;}
+form input, form textarea {margin-bottom: 10px; padding: 8px;}

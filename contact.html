@@ -3,30 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Contact - Data Analytics Hub</title>
+  <title>Contact Us</title>
   <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
 </head>
 <body>
-<header>
-  <nav>
-    <h1>Contact ✉️</h1>
-    <ul>
-      <li><a href="index.html">Home</a></li>
-      <li><a href="about.html">About</a></li>
-      <li><a href="analytics.html">Analytics</a></li>
-      <li><a href="resources.html">Resources</a></li>
-      <li><a href="quiz.html">Quiz</a></li>
-    </ul>
-  </nav>
-</header>
-<main>
-  <form id="feedbackForm" method="POST">
-    <input type="text" name="name" placeholder="Your Name" required>
-    <input type="email" name="email" placeholder="Your Email" required>
-    <textarea name="message" placeholder="Your Feedback" required></textarea>
-    <input type="file" name="files" multiple>
-    <button type="submit">Send Feedback 🚀</button>
-  </form>
-</main>
+  <header>
+    <h1>Contact</h1>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="about.html">About</a>
+      <a href="data-analytics.html">Data Analytics</a>
+      <a href="resources.html">Resources</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+  </header>
+  <main>
+    <form id="feedback-form">
+      <label for="name">Your Name:</label>
+      <input type="text" id="name" name="name" required>
+      <label for="email">Your Email:</label>
+      <input type="email" id="email" name="email" required>
+      <label for="message">Message:</label>
+      <textarea id="message" name="message" required></textarea>
+      <button type="submit">Send Feedback</button>
+    </form>
+    <p id="feedback-response"></p>
+  </main>
 </body>
 </html>
