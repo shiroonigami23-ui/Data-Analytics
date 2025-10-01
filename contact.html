@@ -1,1 +1,78 @@
-<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Contact - Data Analytics Hub</title><link rel='stylesheet' href='style.css'><script defer src='script.js'></script></head><body><header class='site-header'><div class='brand'>📊 Data Analytics Hub</div></header><main class='container'><h1>Contact & Feedback</h1><form id='feedbackForm' enctype='multipart/form-data'><label>Name (optional)</label><input id='f_name' name='name' type='text' placeholder='Your name'><label>Email (optional)</label><input id='f_email' name='email' type='email' placeholder='you@example.com'><label>Message</label><textarea id='f_msg' name='message' required placeholder='Your feedback or resource note'></textarea><label>Attach files (PDF/IMG/DOCX/PPTX) — multiple allowed</label><input id='f_files' name='files' type='file' multiple><button type='submit'>Send Feedback 🚀</button><p id='feedbackStatus'></p></form><p class='muted'>Files are stored in your Drive; only summaries & images are shown on the site.</p></main><footer class='site-footer'>© 2025 Data Analytics Hub</footer></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Contact - Data Analytics Hub</title>
+<link rel="stylesheet" href="style.css">
+<script defer src="script.js"></script>
+<script defer src="badges.js"></script>
+</head>
+<body>
+<header class="site-header">
+  <div class="brand">📊 Data Analytics Hub</div>
+  <nav class="main-nav">
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="topics.html">Topics</a>
+    <a href="resources.html">Resources</a>
+    <a href="quiz.html">Quiz</a>
+    <a href="contact.html" class="active">Contact</a>
+  </nav>
+</header>
+
+<main class="container">
+  <h1>📬 Contact & Feedback</h1>
+  <p>Have a suggestion, found an error, or want to share resources? Send it directly here.</p>
+
+  <form id="feedbackForm" enctype="multipart/form-data">
+    <label>Name (optional)</label>
+    <input id="f_name" name="name" type="text" placeholder="Your name">
+
+    <label>Email (optional)</label>
+    <input id="f_email" name="email" type="email" placeholder="you@example.com">
+
+    <label>Message</label>
+    <textarea id="f_msg" name="message" required placeholder="Your feedback or resource note"></textarea>
+
+    <label>Attach files (PDF/IMG/DOCX/PPTX) — multiple allowed</label>
+    <input id="f_files" name="files" type="file" multiple>
+
+    <button type="submit">Send Feedback 🚀</button>
+    <p id="feedbackStatus"></p>
+  </form>
+
+  <p class="muted">📌 Files are stored in Google Drive; only summaries and previews are shown on the site.<br>
+  Daily feedback reports are sent to <strong>aryansingh19gh@gmail.com</strong>.</p>
+</main>
+
+<footer class="site-footer">
+  © 2025 Data Analytics Hub — Guided by Shiro Oni-sama 👑
+</footer>
+
+<script>
+// Connect to Apps Script endpoint
+document.getElementById("feedbackForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const status = document.getElementById("feedbackStatus");
+  status.innerText = "⏳ Sending...";
+
+  const formData = new FormData(document.getElementById("feedbackForm"));
+  try {
+    const res = await fetch("https://script.google.com/macros/s/AKfycbxuFHf4WlRXYq2I0QJdC5D3zolFzg70moOFoKJIwDklQRfugmD8LYsl4JZ3Z9hTIonhKw/exec", {
+      method: "POST",
+      body: formData
+    });
+    if (res.ok) {
+      status.innerText = "✅ Feedback sent successfully!";
+      updateProgress('topics'); // reward contribution with a badge
+    } else {
+      status.innerText = "❌ Failed to send feedback.";
+    }
+  } catch (err) {
+    status.innerText = "⚠️ Error sending feedback.";
+  }
+});
+</script>
+</body>
+</html>
