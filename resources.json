@@ -1,1 +1,17 @@
-[]
+[
+  {
+    "title": "Intro to Data Analytics",
+    "file": "data/resources/Intro_to_Data_Analytics.pdf",
+    "type": "pdf"
+  },
+  {
+    "title": "Statistics for Data Analytics",
+    "file": "data/resources/Statistics_for_DA.pdf",
+    "type": "pdf"
+  },
+  {
+    "title": "Machine Learning Basics",
+    "file": "data/resources/Machine_Learning_Basics.pdf",
+    "type": "pdf"
+  }
+]
