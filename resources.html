@@ -5,25 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Resources - Data Analytics Hub</title>
   <link rel="stylesheet" href="style.css">
-  <script defer src="script.js"></script>
+  <script src="script.js" defer></script>
 </head>
 <body>
-  <header>
+<header>
+  <nav>
     <h1>Resources 📚</h1>
-    <nav>
-      <a href="index.html">Home</a>
-      <a href="about.html">About</a>
-      <a href="analytics.html">Analytics</a>
-      <a href="resources.html">Resources</a>
-      <a href="quiz.html">Quiz</a>
-      <a href="contact.html">Contact</a>
-    </nav>
-  </header>
-  <main>
-    <input type="text" id="searchBar" placeholder="🔍 Search resources...">
-    <ul id="resourceList">
-      <!-- Filled dynamically by script.js from YAML -->
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="analytics.html">Analytics</a></li>
+      <li><a href="quiz.html">Quiz</a></li>
+      <li><a href="contact.html">Contact</a></li>
     </ul>
-  </main>
+  </nav>
+</header>
+<main>
+  <input type="text" id="searchBar" placeholder="🔍 Search resources...">
+  <div id="resourcesList"></div>
+</main>
 </body>
 </html>

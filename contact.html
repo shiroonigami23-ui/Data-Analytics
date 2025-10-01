@@ -1,1 +1,32 @@
-<!DOCTYPE html><html><head><title>Contact</title></head><body><h1>Feedback Form</h1></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact - Data Analytics Hub</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <nav>
+    <h1>Contact ✉️</h1>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="analytics.html">Analytics</a></li>
+      <li><a href="resources.html">Resources</a></li>
+      <li><a href="quiz.html">Quiz</a></li>
+    </ul>
+  </nav>
+</header>
+<main>
+  <form id="feedbackForm" method="POST">
+    <input type="text" name="name" placeholder="Your Name" required>
+    <input type="email" name="email" placeholder="Your Email" required>
+    <textarea name="message" placeholder="Your Feedback" required></textarea>
+    <input type="file" name="files" multiple>
+    <button type="submit">Send Feedback 🚀</button>
+  </form>
+</main>
+</body>
+</html>
