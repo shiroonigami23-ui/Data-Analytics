@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Analytics - Data Analytics Hub</title>
+<link rel="stylesheet" href="style.css">
+<script defer src="script.js"></script>
+<script defer src="badges.js"></script>
+</head>
+<body>
+<header class="site-header">
+  <div class="brand">📊 Data Analytics Hub</div>
+  <nav class="main-nav">
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="topics.html">Topics</a>
+    <a href="resources.html">Resources</a>
+    <a href="quiz.html">Quiz</a>
+    <a href="contact.html">Contact</a>
+    <a href="analytics.html" class="active">Analytics</a>
+  </nav>
+</header>
+
+<main class="container">
+  <h1>📊 Site Analytics</h1>
+  <p>Here you can view how the site is being used. Stats are anonymized and refreshed automatically.</p>
+
+  <section class="card">
+    <h3>Visitor Summary</h3>
+    <iframe style="width:100%;height:400px;border:0;"
+      src="https://datastudio.google.com/embed/reporting?url=https://analytics.google.com">
+    </iframe>
+    <p class="muted">⚠️ Note: Embedded Google Analytics dashboard requires linked account.</p>
+  </section>
+
+  <section class="card">
+    <h3>Popular Searches & Topics</h3>
+    <div id="popularTopics">Loading...</div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  © 2025 Data Analytics Hub — Guided by Shiro Oni-sama 👑
+</footer>
+
+<script>
+// Example: load from analytics.json (if populated by backend)
+fetch("analytics.json").then(r=>r.json()).then(data=>{
+  const div=document.getElementById("popularTopics");
+  div.innerHTML = data.topics ? data.topics.map(t=>`<p>🔥 ${t}</p>`).join("") : "No data yet.";
+});
+</script>
+</body>
+</html>
