@@ -1,0 +1,9 @@
+{
+  "name": "data-analytics-hub-backend",
+  "version": "1.0.0",
+  "dependencies": {
+    "pdf-parse": "^1.1.1",
+    "mammoth": "^1.4.16",
+    "google-translate-api": "^2.3.0"
+  }
+}

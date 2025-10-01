@@ -1,0 +1,122 @@
+[
+  {
+    "topic": "Introduction",
+    "q": "What is the main goal of data analytics?",
+    "options": [
+      "To collect data",
+      "To extract insights",
+      "To delete data",
+      "To backup data"
+    ],
+    "a": "To extract insights",
+    "explanation": "Data analytics extracts insights."
+  },
+  {
+    "topic": "Introduction",
+    "q": "Which step comes first in analytics?",
+    "options": [
+      "Modeling",
+      "Data collection",
+      "Visualization",
+      "Reporting"
+    ],
+    "a": "Data collection",
+    "explanation": "You must collect data before anything else."
+  },
+  {
+    "topic": "SQL",
+    "q": "Which clause filters rows in SQL?",
+    "options": [
+      "WHERE",
+      "GROUP BY",
+      "ORDER BY",
+      "HAVING"
+    ],
+    "a": "WHERE",
+    "explanation": "WHERE filters rows."
+  },
+  {
+    "topic": "Visualization",
+    "q": "Which chart is best for trends over time?",
+    "options": [
+      "Pie chart",
+      "Bar chart",
+      "Line chart",
+      "Scatter plot"
+    ],
+    "a": "Line chart",
+    "explanation": "Line charts show trends."
+  },
+  {
+    "topic": "Clustering",
+    "q": "K-Means is an example of?",
+    "options": [
+      "Supervised learning",
+      "Unsupervised learning",
+      "Reinforcement learning",
+      "None"
+    ],
+    "a": "Unsupervised learning",
+    "explanation": "K-Means is unsupervised."
+  },
+  {
+    "topic": "Regression",
+    "q": "R squared measures what?",
+    "options": [
+      "Accuracy",
+      "Variance explained",
+      "Number of features",
+      "Loss"
+    ],
+    "a": "Variance explained",
+    "explanation": "R² shows variance explained."
+  },
+  {
+    "topic": "ETL",
+    "q": "What does ETL stand for?",
+    "options": [
+      "Extract Transform Load",
+      "Evaluate Transform Learn",
+      "Extract Test Learn",
+      "Estimate Transform Load"
+    ],
+    "a": "Extract Transform Load",
+    "explanation": "ETL pipeline: Extract, Transform, Load."
+  },
+  {
+    "topic": "Data Cleaning",
+    "q": "Which operation handles missing values?",
+    "options": [
+      "Imputation",
+      "Normalization",
+      "Encoding",
+      "Clustering"
+    ],
+    "a": "Imputation",
+    "explanation": "Imputation fills missing values."
+  },
+  {
+    "topic": "Sampling",
+    "q": "Why sample data?",
+    "options": [
+      "To increase size",
+      "To reduce computation",
+      "To delete rows",
+      "To encrypt"
+    ],
+    "a": "To reduce computation",
+    "explanation": "Sampling reduces data size for computation."
+  },
+  {
+    "topic": "Statistics",
+    "q": "Which measure is resistant to outliers?",
+    "options": [
+      "Mean",
+      "Median",
+      "Range",
+      "Standard deviation"
+    ],
+    "a": "Median",
+    "explanation": "Median is robust to outliers."
+  }
+]

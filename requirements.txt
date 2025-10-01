@@ -1,7 +1,5 @@
-PyYAML
 PyPDF2
 python-docx
-pytesseract
+python-pptx
 Pillow
-spacy
-nltk
+PyYAML

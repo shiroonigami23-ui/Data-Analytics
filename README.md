@@ -1,3 +1,3 @@
-# Data Analytics Website
+# Data Analytics Hub
 
-Setup instructions...
+Auto site; see README for setup instructions.
