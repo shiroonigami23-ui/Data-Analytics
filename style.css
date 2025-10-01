@@ -125,7 +125,23 @@ button:active {
   20%, 60% { transform: translateX(-6px); }
   40%, 80% { transform: translateX(6px); }
 }
-
+#badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+.badge {
+  background: linear-gradient(135deg, #42a5f5, #478ed1);
+  color: #fff;
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  transition: transform 0.3s;
+}
+.badge:hover {
+  transform: scale(1.05);
+}
 /* Footer */
 footer {
   margin-top: 3rem;
