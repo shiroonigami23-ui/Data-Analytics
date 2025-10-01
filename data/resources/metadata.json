@@ -1,21 +1,32 @@
-{
-  "sample1.png": {
-    "description": "Intro to stats: distribution example using university grades.",
-    "tags": [
-      "lecture",
-      "statistics"
-    ],
-    "quiz": [
-      {
-        "q": "What measure represents the average?",
-        "options": [
-          "Mean",
-          "Median",
-          "Mode",
-          "Range"
-        ],
-        "a": "Mean"
-      }
-    ]
+[
+  {
+    "title": "Intro to Data Analytics",
+    "file": "data/resources/Intro_to_Data_Analytics.pdf",
+    "description": "Covers fundamental concepts of data analytics including data collection, cleaning, and visualization."
+  },
+  {
+    "title": "Statistics for Data Analytics",
+    "file": "data/resources/Statistics_for_DA.pdf",
+    "description": "Key statistical methods for analytics including probability, distributions, and hypothesis testing."
+  },
+  {
+    "title": "Machine Learning Basics",
+    "file": "data/resources/Machine_Learning_Basics.pdf",
+    "description": "An introduction to supervised and unsupervised learning, models, and training workflows."
+  },
+  {
+    "title": "Big Data and Cloud in Analytics",
+    "file": "data/resources/Big_Data_and_Cloud_in_Analytics.pdf",
+    "description": "Explains big data architectures, cloud platforms, and their role in analytics pipelines."
+  },
+  {
+    "title": "Data Visualization Essentials",
+    "file": "data/resources/Data_Visualization_Essentials.pdf",
+    "description": "Principles and practices of effective data visualization, charts, and storytelling with data."
+  },
+  {
+    "title": "SQL for Data Analysis",
+    "file": "data/resources/sql_for_data_analysis.docx",
+    "description": "SQL basics and advanced queries for data analytics and business intelligence."
   }
-}
+]
