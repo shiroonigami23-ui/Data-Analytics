@@ -1,0 +1,7 @@
+PyYAML
+PyPDF2
+python-docx
+pytesseract
+Pillow
+spacy
+nltk
