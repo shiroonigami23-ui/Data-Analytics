@@ -1,1 +1,59 @@
-<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Resources - Data Analytics Hub</title><link rel='stylesheet' href='style.css'><script defer src='script.js'></script></head><body><header class='site-header'><div class='brand'>📊 Data Analytics Hub</div></header><main class='container'><h1>Resources</h1><div id='resourceCards' class='cards-grid'></div></main><footer class='site-footer'>© 2025 Data Analytics Hub</footer></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Resources - Data Analytics Hub</title>
+<link rel="stylesheet" href="style.css">
+<script defer src="script.js"></script>
+<script defer src="badges.js"></script>
+</head>
+<body class="page-resources">
+<header class="site-header">
+  <div class="brand">📊 Data Analytics Hub</div>
+  <nav class="main-nav">
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="topics.html">Topics</a>
+    <a href="resources.html" class="active">Resources</a>
+    <a href="quiz.html">Quiz</a>
+    <a href="contact.html">Contact</a>
+  </nav>
+</header>
+
+<main class="container">
+  <h1>📚 Resources</h1>
+  <p>Here are all available study materials. Uploads auto-extract summaries so you don’t have to dig through PDFs.</p>
+
+  <div id="resources-list">
+    <!-- update_site.py fills this -->
+  </div>
+</main>
+
+<footer class="site-footer">
+  © 2025 Data Analytics Hub — Guided by Shiro Oni-sama 👑
+</footer>
+
+<script>
+// Hook into resource cards
+document.addEventListener("DOMContentLoaded", () => {
+  const list = document.getElementById("resources-list");
+  fetch("resources.json")
+    .then(res => res.json())
+    .then(data => {
+      data.forEach(item => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+          <h3>${item.title} (${item.type})</h3>
+          <p>${item.summary}</p>
+          <a href="${item.file}" target="_blank">Open Resource</a>
+          <button onclick="updateProgress('topics')">✅ Mark as Read</button>
+        `;
+        list.appendChild(card);
+      });
+    });
+});
+</script>
+</body>
+</html>
