@@ -1,29 +1,31 @@
-name: Update Resources
+name: Update Resources Page
 
 on:
   push:
-    branches: [ "main" ]
+    paths:
+      - "data/resources/**"
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+    - name: Checkout repo
+      uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.x'
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.x"
 
-      - name: Generate resources.json
-        run: python generate_resources.py
+    - name: Run resource generator
+      run: python generate_resources.py
 
-      - name: Commit updated resources.json
-        run: |
-          git config --global user.name 'github-actions'
-          git config --global user.email 'github-actions@github.com'
-          git add data/resources.json
-          git commit -m "Auto-update resources.json" || echo "No changes to commit"
-          git push
-          
+    - name: Commit updated resources.html
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git add resources.html
+        git commit -m "Auto-update resources page [skip ci]" || echo "No changes to commit"
+        git push
+        
