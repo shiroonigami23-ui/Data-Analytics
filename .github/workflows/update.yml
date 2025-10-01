@@ -1,0 +1,29 @@
+name: Update Resources
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Generate resources.json
+        run: python generate_resources.py
+
+      - name: Commit updated resources.json
+        run: |
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@github.com'
+          git add data/resources.json
+          git commit -m "Auto-update resources.json" || echo "No changes to commit"
+          git push
+          
