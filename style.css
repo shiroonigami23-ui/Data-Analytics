@@ -156,3 +156,24 @@ footer a {
 footer a:hover {
   color: var(--secondary);
 }
+/* --- Dictionary Pop-up Styles --- */
+.dictionary-popup {
+  position: fixed; /* Stays on screen even when scrolling */
+  display: none; /* Hidden by default */
+  background: #fff;
+  color: #212121;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  padding: 15px;
+  max-width: 300px;
+  font-size: 0.95em;
+  z-index: 2000; /* Ensures it's on top of all other content */
+}
+
+/* Style for the content inside the pop-up */
+#dictionary-content strong {
+  color: var(--primary);
+  display: block;
+  margin-bottom: 5px;
+}
