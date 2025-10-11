@@ -1,46 +1,54 @@
-name: Auto Update Site Content
+name: 'Auto Update Site Content'
 
+# Define the triggers for this workflow
 on:
-  # This makes the "Run workflow" button appear
+  # This allows you to run it manually from the Actions tab
   workflow_dispatch:
 
-  # This automatically runs the script when you add PDFs
+  # This runs it automatically when you push to the 'main' branch
   push:
+    branches:
+      - main
     paths:
-      - "data/resources/**"
+      - 'data/resources/**'
 
+# Define the single job that will run
 jobs:
   build-and-commit:
+    # Use the latest version of Ubuntu to run the job
     runs-on: ubuntu-latest
 
+    # Define the sequence of steps in the job
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v3
+      # Step 1: Check out a copy of your repository
+      - name: 'Checkout repo'
+        uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: "3.x"
+      # Step 2: Set up the Python environment
+      - name: 'Set up Python'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        # This will install all libraries from your requirements.txt file
-        pip install -r requirements.txt
+      # Step 3: Install all the necessary Python libraries
+      - name: 'Install dependencies'
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-    - name: Generate Content and Build Website
-      env:
-        # This passes your secret API key to the python script
-        SHIROONI23: ${{ secrets.SHIROONI23 }}
-      run: |
-        python update_site.py
+      # Step 4: Run your main Python script to build the website
+      - name: 'Generate Content and Build Website'
+        env:
+          # Securely pass your API key to the script
+          SHIROONI23: ${{ secrets.SHIROONI23 }}
+        run: |
+          python update_site.py
 
-    - name: Commit updated website files
-      run: |
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        # This command adds all the generated HTML files and JSON files
-        git add *.html *.json
-        # This commits the changes, if there are any
-        git commit -m "Auto-build website with AI content" || echo "No changes to commit"
-        git push
+      # Step 5: Commit the newly created/updated files back to the repository
+      - name: 'Commit and push updated website files'
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A # Add all new and changed files
+          git commit -m "Auto-build website with AI content [skip ci]" || echo "No changes to commit"
+          git push
