@@ -3,3 +3,5 @@ python-docx
 python-pptx
 Pillow
 PyYAML
+google-generativeai
+beautifulsoup4
