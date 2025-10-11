@@ -1,193 +1,151 @@
 import os
 import json
 from pathlib import Path
-from datetime import datetime
-from bs4 import BeautifulSoup
+import google.generativeai as genai
 import PyPDF2
-import docx
-import google.generativai as genai
 
 # --- Configuration ---
 RESOURCE_DIR = "data/resources"
 RESOURCES_JSON = "resources.json"
 QUIZ_JSON = "quiz.json"
+HEADER_TEMPLATE = "_header.html"
+FOOTER_TEMPLATE = "_footer.html"
 
-# --- AI Integration ---
+# --- AI and Text Extraction (same as before) ---
 
 def get_gemini_model():
-    """Initializes and returns the Gemini model if the API key is set."""
-    # This now looks for the secret named SHIROONI23
     gemini_api_key = os.getenv("SHIROONI23")
-    if not gemini_api_key:
-        print("⚠️ SHIROONI23 environment variable not set. Skipping AI functions.")
-        return None
+    if not gemini_api_key: return None
     try:
         genai.configure(api_key=gemini_api_key)
         return genai.GenerativeModel('gemini-pro')
-    except Exception as e:
-        print(f"❌ Error configuring Gemini API: {e}")
-        return None
+    except Exception: return None
 
-def generate_ai_summary(model, text_content, title):
-    """Generates a friendly, concise summary for a document."""
-    if not model or not text_content:
-        return f"A document about {title}. Open to read more."
-
-    print(f"✨ Generating AI summary for: {title}...")
-    prompt = f"""
-    Please act as a friendly and helpful teaching assistant. Based on the text from a document titled "{title}", generate a concise, engaging summary for a student.
-
-    Rules:
-    - The summary should be around 2-3 sentences long.
-    - Explain the main topic and what the student will learn.
-    - Use a slightly quirky and encouraging tone. For example, use phrases like "Dive into..." or "Get ready to master...".
-    - Do not use markdown or special formatting. Return only the plain text of the summary.
-
-    Text content:
-    ---
-    {text_content}
-    ---
-    """
+def generate_ai_content(model, text, title, task):
+    if not model or not text: return None
+    if task == "summary":
+        prompt = f'Generate a concise, 2-3 sentence summary for a student from this text titled "{title}":\n\n{text}'
+    elif task == "quiz":
+        prompt = f'Generate 2 multiple-choice questions based on this text. Return as a valid JSON array of objects with keys "q", "options", and "a".\n\n{text}'
     try:
         response = model.generate_content(prompt)
+        if task == "quiz":
+            return json.loads(response.text.strip().replace("```json", "").replace("```", ""))
         return response.text.strip()
-    except Exception as e:
-        print(f"⚠️ AI summary generation failed: {e}")
-        return f"A document about {title}. An error occurred while generating the summary."
+    except Exception:
+        return [] if task == "quiz" else f"A document about {title}."
 
-def generate_ai_quiz(model, text_content, title):
-    """Generates a list of quiz questions from text content."""
-    if not model or not text_content:
-        return []
-
-    print(f"🧠 Generating AI quiz for: {title}...")
-    prompt = f"""
-    Based on the following text from a data analytics document titled "{title}", please generate 2 unique multiple-choice quiz questions.
-
-    Rules:
-    - Each question must have exactly 3 options.
-    - One option must be the correct answer.
-    - Return the output as a valid JSON array. Do not include any text or formatting before or after the JSON.
-    - Each JSON object in the array should have three keys: "q" for the question, "options" for an array of the choices, and "a" for the correct answer.
-
-    Text content:
-    ---
-    {text_content}
-    ---
-    """
+def extract_text_from_pdf(path):
     try:
-        response = model.generate_content(prompt)
-        json_response = response.text.strip().replace("```json", "").replace("```", "")
-        return json.loads(json_response)
-    except Exception as e:
-        print(f"⚠️ AI quiz generation failed: {e}")
-        return []
-
-# --- Text Extractors ---
-def extract_text_from_pdf(file_path):
-    try:
-        with open(file_path, "rb") as f:
+        with open(path, "rb") as f:
             reader = PyPDF2.PdfReader(f)
-            text = ""
-            # Extract text from up to the first 5 pages for better context
-            for page in reader.pages[:5]:
-                text += page.extract_text() or ""
-            return text.strip().replace("\n", " ")
-    except Exception as e:
-        print(f"Could not read PDF {file_path}: {e}")
-        return None
+            return "".join(page.extract_text() or "" for page in reader.pages[:3])
+    except Exception: return None
 
-def extract_text_from_docx(file_path):
+# --- WEBSITE BUILDER ---
+
+def render_page(page_name, content, active_nav):
+    """Builds a full HTML page from templates and content."""
     try:
-        doc = docx.Document(file_path)
-        return " ".join([p.text for p in doc.paragraphs])
-    except Exception as e:
-        print(f"Could not read DOCX {file_path}: {e}")
-        return None
-
-# --- Core Logic ---
-def build_and_update_content():
-    """Main function to build resources, generate content, and update HTML."""
-    gemini_model = get_gemini_model()
-    resources = []
-    full_quiz = []
-
-    for fname in os.listdir(RESOURCE_DIR):
-        fpath = os.path.join(RESOURCE_DIR, fname)
-        if not os.path.isfile(fpath):
-            continue
-
-        ext = Path(fname).suffix.lower()
-        name = Path(fname).stem.replace("_", " ").title()
-        ftype = "other"
-        full_text = None
-
-        if ext == ".pdf":
-            ftype = "document"
-            full_text = extract_text_from_pdf(fpath)
-        elif ext == ".docx":
-            ftype = "document"
-            full_text = extract_text_from_docx(fpath)
-        elif ext in [".png", ".jpg", ".jpeg"]:
-            ftype = "image"
-        
-        # Generate AI summary
-        summary = generate_ai_summary(gemini_model, full_text, name)
-
-        # Generate AI quiz questions
-        if ftype == "document":
-            quiz_questions = generate_ai_quiz(gemini_model, full_text, name)
-            full_quiz.extend(quiz_questions)
-
-        resources.append({
-            "title": name,
-            "file": f"{RESOURCE_DIR}/{fname}",
-            "type": ftype,
-            "summary": summary
-        })
-
-    # Save the generated content to JSON files
-    with open(RESOURCES_JSON, "w", encoding="utf-8") as f:
-        json.dump(resources, f, indent=2, ensure_ascii=False)
-    print(f"✅ {RESOURCES_JSON} updated with {len(resources)} entries")
-
-    # Add fallback questions if AI generation failed
-    if not full_quiz:
-        full_quiz.append({"q": "Which step is crucial for preparing data?", "options": ["Cleaning", "Ignoring", "Deleting"], "a": "Cleaning"})
-    
-    with open(QUIZ_JSON, "w", encoding="utf-8") as f:
-        json.dump(full_quiz, f, indent=2, ensure_ascii=False)
-    print(f"✅ {QUIZ_JSON} updated with {len(full_quiz)} questions")
-
-    # Update the HTML files
-    update_html_files(resources)
-
-def update_html_files(resources):
-    """Updates the topics and resources HTML pages with new content."""
-    # Update topics.html
-    try:
-        with open("topics.html", "r+", encoding="utf-8") as f:
-            soup = BeautifulSoup(f, "html.parser")
-            container = soup.find("div", {"id": "topicsList"})
-            if container:
-                container.clear()
-                for res in resources:
-                    card = soup.new_tag("div", attrs={"class": "card"})
-                    card.innerHTML = f"""<h3>{res['title']}</h3>
-                                         <p>{res['summary']}</p>
-                                         <a href="{res['file']}" target="_blank" class="button">Read More</a>"""
-                    container.append(card)
-            f.seek(0)
-            f.write(str(soup))
-            f.truncate()
-        print("✅ topics.html updated")
+        with open(HEADER_TEMPLATE, "r", encoding="utf-8") as f:
+            header = f.read()
+        with open(FOOTER_TEMPLATE, "r", encoding="utf-8") as f:
+            footer = f.read()
     except FileNotFoundError:
-        print("⚠️ topics.html not found, skipping update.")
-    
-    # Update resources.html (optional, as topics.html is similar)
-    print("✅ All HTML files updated.")
+        print("❌ Error: Template files (_header.html, _footer.html) not found!")
+        return
 
+    # Set the page title and active navigation link
+    header = header.replace("{{PAGE_TITLE}}", page_name.title())
+    nav_placeholders = ["HOME", "TOPICS", "QUIZ", "PROGRESS"]
+    for nav in nav_placeholders:
+        header = header.replace(f"{{{{ACTIVE_{nav}}}}}", "active" if nav == active_nav else "")
+
+    # Combine templates and content to create the final HTML
+    full_html = header + content + footer
+    with open(f"{page_name.lower()}.html", "w", encoding="utf-8") as f:
+        f.write(full_html)
+    print(f"✅ Built page: {page_name.lower()}.html")
+
+# --- Page Content Generators ---
+
+def build_all_pages(resources, quizzes):
+    """Creates the content for and renders each page of the website."""
+    # 1. Home Page
+    home_content = """
+        <section class="hero">
+            <h1>Learn Data Analytics — simple, visual, and fun</h1>
+            <p class="lead">AI-powered summaries, quizzes and a pop-up dictionary.</p>
+        </section>
+        <h2>Latest Topics</h2>
+    """
+    home_content += '<div class="cards-grid">'
+    for res in resources[:3]: # Show 3 latest topics on home
+        home_content += f'<div class="card"><h3>{res["title"]}</h3><p>{res["summary"]}</p><a href="topics.html" class="button">View Topic</a></div>'
+    home_content += '</div>'
+    render_page("index", home_content, "HOME")
+
+    # 2. Topics Page
+    topics_content = '<h1>📖 Extracted Topics</h1>'
+    topics_content += '<div class="cards-grid">'
+    for res in resources:
+        topics_content += f"""
+            <div class="card">
+                <h3>{res['title']}</h3>
+                <p>{res['summary']}</p>
+                <a href="{res['file']}" target="_blank" class="button">Read Document</a>
+            </div>"""
+    topics_content += '</div>'
+    render_page("topics", topics_content, "TOPICS")
+
+    # 3. Quiz Page
+    quiz_content = '<h1>📝 Practice Quiz</h1><div id="quiz-container">'
+    for i, q in enumerate(quizzes):
+        options_html = ""
+        for opt in q['options']:
+            options_html += f'<label class="quiz-option"><input type="radio" name="q{i}" value="{opt}"> {opt}</label>'
+        quiz_content += f'<div class="card"><p><strong>Q{i+1}:</strong> {q["q"]}</p>{options_html}</div>'
+    quiz_content += '</div><button id="submit-btn">Submit Quiz</button><div id="quiz-result"></div>'
+    render_page("quiz", quiz_content, "QUIZ")
+
+    # 4. Progress Page
+    progress_content = """
+        <h1>🏆 Your Progress & Achievements</h1>
+        <section class="card">
+            <h2>🏅 Your Badges</h2>
+            <p>You can earn badges by reading topics and completing quizzes!</p>
+            <div id="badges"></div>
+        </section>
+    """
+    render_page("progress", progress_content, "PROGRESS")
+
+
+# --- Main Execution ---
+
+def main():
+    """Main function to generate JSON content and build the full website."""
+    model = get_gemini_model()
+    resources = []
+    quizzes = []
+
+    for fname in sorted(os.listdir(RESOURCE_DIR)):
+        fpath = os.path.join(RESOURCE_DIR, fname)
+        if fname.lower().endswith(".pdf"):
+            title = Path(fname).stem.replace("_", " ").title()
+            text = extract_text_from_pdf(fpath)
+            
+            summary = generate_ai_content(model, text, title, "summary")
+            quiz_items = generate_ai_content(model, text, title, "quiz")
+            
+            resources.append({"title": title, "file": fpath, "summary": summary})
+            if quiz_items: quizzes.extend(quiz_items)
+            
+    # Save JSON files (still useful for other tools or future features)
+    with open(RESOURCES_JSON, "w") as f: json.dump(resources, f, indent=2)
+    with open(QUIZ_JSON, "w") as f: json.dump(quizzes, f, indent=2)
+    
+    # Build the entire multi-page website
+    build_all_pages(resources, quizzes)
 
 if __name__ == "__main__":
-    build_and_update_content()
-    print("🎉 Full site auto-update complete!")
+    main()
