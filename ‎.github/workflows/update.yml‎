@@ -1,6 +1,10 @@
 name: Auto Update Site Content
 
 on:
+  # This makes the "Run workflow" button appear
+  workflow_dispatch:
+
+  # This automatically runs the script when you add PDFs
   push:
     paths:
       - "data/resources/**"
@@ -21,19 +25,22 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
+        # This will install all libraries from your requirements.txt file
         pip install -r requirements.txt
 
-    - name: Generate Content with AI
+    - name: Generate Content and Build Website
       env:
-        # This now passes the secret named SHIROONI23
+        # This passes your secret API key to the python script
         SHIROONI23: ${{ secrets.SHIROONI23 }}
       run: |
         python update_site.py
 
-    - name: Commit updated files
+    - name: Commit updated website files
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git add resources.json quiz.json topics.html resources.html || true
-        git commit -m "Auto-update content with AI summaries & quizzes" || echo "No changes to commit"
+        # This command adds all the generated HTML files and JSON files
+        git add *.html *.json
+        # This commits the changes, if there are any
+        git commit -m "Auto-build website with AI content" || echo "No changes to commit"
         git push
