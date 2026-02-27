@@ -1,46 +1,57 @@
-# 📊 Data Analytics Hub
+# Data Analytics Android App
 
-A gamified, interactive learning portal for Data Analytics, designed by **Shiro Oni-sama 👑**.
+Data Analytics Android is a Jetpack Compose app for learning data analytics topics with resources, quizzes, progress tracking, and feedback submission.
 
-## ✨ Features
-- 📚 **Auto Resources Extraction**: PDFs, DOCX, PPTX, and images → auto summaries + previews.
-- 📝 **Quizzes**: Generated from uploaded resources.
-- 🏆 **Badges & Progress**: Students unlock badges and track their study progress.
-- 🌐 **Translator Integration**: Highlight a word → quick meaning.
-- 📬 **Feedback System**: Submissions via Google Apps Script → daily email summaries.
-- 📊 **Analytics**: Anonymous tracking of popular topics and site usage.
+## Repository Focus
 
-## 🛠️ Tech Stack
-- **Frontend**: HTML, CSS (modern blue theme), JS
-- **Backend Automation**: Python (`PyPDF2`, `pdfminer.six`, `python-docx`, `python-pptx`)
-- **CI/CD**: GitHub Actions (auto update + deploy)
-- **Feedback**: Google Apps Script → Sheets + email
+This repository now ships a production-ready Android project in:
 
-## 📂 Structure
-index.html
-about.html
-topics.html
-resources.html
-quiz.html
-contact.html
-analytics.html
-style.css
-script.js
-badges.js
-resources.json
-quiz.json
-update_site.py
-generate_resources.py
-generate_quiz.py
-.github/workflows/update.yml
+- `dataanalytics-android/`
 
-## 🚀 How It Works
-1. Upload files (PDF/Doc/Image) into `data/resources/`.
-2. GitHub Action runs:
-   - Extracts content → updates `resources.json`.
-   - Generates quizzes → updates `quiz.json`.
-   - Refreshes `index.html` and `resources.html`.
-3. Site auto-deploys via GitHub Pages.
+Legacy web assets remain in the root for reference, while Android is the primary deliverable.
 
-## 👑 Credits
-Project created and guided by **Shiro Oni-sama**.
+## Key Features
+
+- Adaptive navigation for phone, tablet, and laptop layouts
+- Persistent collapsible side navigation on large screens
+- Dashboard with collapsible sections and learning stats
+- Resource search with per-resource read/unread tracking
+- Quiz flow with validation, score breakdown, answer review, and reset
+- Progress and badges with DataStore persistence and reset action
+- Contact/feedback form integration (Apps Script endpoint)
+- Local analytics snapshot screen from JSON assets
+
+## Build APK
+
+From `dataanalytics-android/`:
+
+```powershell
+.\gradlew.bat assembleDebug
+```
+
+Generated APK:
+
+- `dataanalytics-android/app/build/outputs/apk/debug/app-debug.apk`
+
+## Ready Package
+
+A packaged artifact is included in:
+
+- `release-package/DataAnalyticsAndroid-debug.apk`
+- `release-package/APK-SHA256.txt`
+- `release-package/DataAnalyticsAndroid-package.zip`
+
+## Required Tooling
+
+- JDK 17
+- Android SDK (configured by `local.properties` on each machine)
+- Gradle wrapper (`gradlew`, `gradlew.bat`) is included
+
+## Developer Docs
+
+- Setup and run guide: `INSTRUCTION.md`
+- Android module details: `dataanalytics-android/README.md`
+
+## License
+
+This project is licensed under the MIT License. See `LICENSE`.

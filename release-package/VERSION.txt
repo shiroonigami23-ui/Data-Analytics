@@ -1,0 +1,5 @@
+Artifact: DataAnalyticsAndroid-debug.apk
+Built on: 2026-02-28 02:52:05 +05:30
+Gradle: 9.3.1
+JDK: 17 (Temurin)
+Build type: debug

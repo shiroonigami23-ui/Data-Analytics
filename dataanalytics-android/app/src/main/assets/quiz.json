@@ -1,0 +1,46 @@
+[
+  {
+    "q": "Which is the first step in data analytics?",
+    "options": [
+      "Visualization",
+      "Data collection",
+      "Modeling"
+    ],
+    "a": "Data collection"
+  },
+  {
+    "q": "Which SQL clause filters rows?",
+    "options": [
+      "WHERE",
+      "GROUP BY",
+      "JOIN"
+    ],
+    "a": "WHERE"
+  },
+  {
+    "q": "Which chart is best for time trends?",
+    "options": [
+      "Line",
+      "Pie",
+      "Scatter"
+    ],
+    "a": "Line"
+  },
+  {
+    "q": "K-Means is an example of?",
+    "options": [
+      "Supervised",
+      "Unsupervised"
+    ],
+    "a": "Unsupervised"
+  },
+  {
+    "q": "Which measure is robust to outliers?",
+    "options": [
+      "Mean",
+      "Median",
+      "Variance"
+    ],
+    "a": "Median"
+  }
+]
