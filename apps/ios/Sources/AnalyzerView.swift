@@ -10,7 +10,7 @@ struct AnalyzerView: View {
     private let levels = ["Normal", "High", "Extreme"]
 
     var body: some View {
-        NavigationStack {
+        NavigationView {
             Form {
                 Section("Input") {
                     TextField("Amount (EUR)", text: $amount)
