@@ -1,0 +1,21 @@
+name: DataAnalyticsIOS
+options:
+  bundleIdPrefix: com.shiro
+targets:
+  DataAnalyticsIOS:
+    type: application
+    platform: iOS
+    deploymentTarget: "15.0"
+    sources:
+      - Sources
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.shiro.dataanalytics
+        INFOPLIST_FILE: Sources/Info.plist
+        SWIFT_VERSION: 5.0
+        TARGETED_DEVICE_FAMILY: "1,2"
+        DEVELOPMENT_TEAM: ""
+        CODE_SIGNING_ALLOWED: NO
+        CODE_SIGNING_REQUIRED: NO
+    scheme:
+      testTargets: []

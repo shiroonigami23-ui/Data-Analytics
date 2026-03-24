@@ -1,57 +1,75 @@
-# Data Analytics Android App
+# Data Analytics Platform
 
-Data Analytics Android is a Jetpack Compose app for learning data analytics topics with resources, quizzes, progress tracking, and feedback submission.
+![Version](https://img.shields.io/badge/version-2.0.0-blue?style=for-the-badge)
+![Android](https://img.shields.io/badge/Android-APK-3DDC84?style=for-the-badge&logo=android)
+![Windows](https://img.shields.io/badge/Windows-EXE-0078D6?style=for-the-badge&logo=windows)
+![Linux](https://img.shields.io/badge/Linux-Binary-FCC624?style=for-the-badge&logo=linux)
+![iOS](https://img.shields.io/badge/iOS-IPA-black?style=for-the-badge&logo=apple)
+![License](https://img.shields.io/badge/license-MIT-green?style=for-the-badge)
 
-## Repository Focus
+Cross-platform data analytics suite with:
+- Android app
+- iOS app (unsigned IPA build artifact)
+- Desktop analyzer app (Windows EXE + Linux binary)
+- Web learning resources and analytics dashboard assets
 
-This repository now ships a production-ready Android project in:
+## Clean Repository Structure
 
-- `dataanalytics-android/`
-
-Legacy web assets remain in the root for reference, while Android is the primary deliverable.
-
-## Key Features
-
-- Adaptive navigation for phone, tablet, and laptop layouts
-- Persistent collapsible side navigation on large screens
-- Dashboard with collapsible sections and learning stats
-- Resource search with per-resource read/unread tracking
-- Quiz flow with validation, score breakdown, answer review, and reset
-- Progress and badges with DataStore persistence and reset action
-- Contact/feedback form integration (Apps Script endpoint)
-- Local analytics snapshot screen from JSON assets
-
-## Build APK
-
-From `dataanalytics-android/`:
-
-```powershell
-.\gradlew.bat assembleDebug
+```text
+Data-Analytics/
+├── .github/workflows/                 # CI/CD build and release
+├── apps/
+│   ├── android/dataanalytics-android/ # Android app
+│   ├── desktop/                       # Desktop analyzer (Python + Tkinter)
+│   └── ios/                           # iOS app source (SwiftUI + XcodeGen)
+├── data/resources/                    # Learning resources
+├── docs/                              # Setup and developer docs
+├── scripts/                           # Utility and content generation scripts
+├── web/                               # Web pages, web assets, JSON data
+└── dist/release-package/              # Legacy packaged outputs
 ```
 
-Generated APK:
+## Desktop Analyzer Features
 
-- `dataanalytics-android/app/build/outputs/apk/debug/app-debug.apk`
+- Analyze CSV/JSON datasets
+- Dataset profile: rows, columns, missing values, duplicates
+- Numeric summary statistics
+- Top correlations
+- Simple anomaly count using z-score threshold
+- Export report to JSON
 
-## Ready Package
+## Build and Run
 
-A packaged artifact is included in:
+### Desktop (local)
+```bash
+cd apps/desktop
+pip install -r requirements.txt
+python app.py
+```
 
-- `release-package/DataAnalyticsAndroid-debug.apk`
-- `release-package/APK-SHA256.txt`
-- `release-package/DataAnalyticsAndroid-package.zip`
+### Android (local)
+```bash
+cd apps/android/dataanalytics-android
+./gradlew assembleDebug
+```
 
-## Required Tooling
+### iOS (local, macOS)
+```bash
+cd apps/ios
+xcodegen generate
+xcodebuild -project DataAnalyticsIOS.xcodeproj -scheme DataAnalyticsIOS -configuration Release -sdk iphoneos CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO
+```
 
-- JDK 17
-- Android SDK (configured by `local.properties` on each machine)
-- Gradle wrapper (`gradlew`, `gradlew.bat`) is included
+## Automated Releases
 
-## Developer Docs
+Push a tag like `v2.0.0` to trigger:
+- `DataAnalytics-android.apk`
+- `DataAnalytics-windows.exe`
+- `DataAnalytics-linux`
+- `DataAnalytics-ios-unsigned.ipa`
 
-- Setup and run guide: `INSTRUCTION.md`
-- Android module details: `dataanalytics-android/README.md`
+Published under GitHub Releases.
 
 ## License
 
-This project is licensed under the MIT License. See `LICENSE`.
+MIT
